@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>meu1mapa</title>
+    <link rel="stylesheet" href="lib/leaflet/leaflet.css" />
+    <script src="lib/leaflet/leaflet.js"></script>
+    <link rel="stylesheet" href="lib/bootstrap-5.3.3-dist/css/bootstrap.min.css" />
+    <script src="lib/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
+    <script src="data/mapamundi.geojson"></script>
+    <script src="data/jacarei.geojson"></script>
+    <script src="data/UF.geojson"></script>
+    <script src="data/sp.geojson"></script>
+    <script src="data/santa.geojson"></script>
+    <script src="data/SP_0.js"></script>
+    <script src="data/RS_0.js"></script>
+    <link rel="stylesheet" href="style.css"/>
+    <style type="text/css">
+        #map{height: 80vh;}
+    </style>
+</head>
+<nav class="navbar bg-body-tertiary fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">mapa mapa mapa mapa mapa mapa </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="offcanvasNavbarLabel">menu lateral do mapa </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+          <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                menu
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" onclick="removerLegenda(); return false;">removerLegenda</a></li>
+                <li><a class="dropdown-item" href="#" onclick="legendaMAPA(); return false;">legendaMAPA </a></li>
+                <li><a class="dropdown-item" href="#" onclick="legendaUF(); return false;">LEGENDA </a></li>
+                <li><a class="dropdown-item" href="#" onclick="minhaAcao(); return false;">Another action</a></li>
+                <li><a class="dropdown-item" href="#" onclick="minhaAcao(); return false;">Another action</a></li>
+                <li><a class="dropdown-item" href="#" onclick="minhaAcao(); return false;">Another action</a></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">menu </a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#" onclick="minhaAcao(); return false;">Action</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="minhaAcao(); return false;">Another action</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="minhaAcao(); return false;">Another action</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="minhaAcao(); return false;">Another action</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="minhaAcao(); return false;">Another action</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="minhaAcao(); return false;">Another action</a></li>
+                </ul>
+              </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+<body>
+    <h1>MEU MAPA 1</h1>
+    <div id="map"></div>
+    <script>
+        function highlightFeature(e) {
+            var highlightLayer = e.target;
+            highlightLayer.openPopup();
+        }
+        // __________________________________________________________________________________________
+        function popiup2(feature, layer) {
+            layer.on({
+                mouseover: highlightFeature,
+            });
+			var content =feature.properties.ADMIN
+            layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+            layer.bindPopup(content);
+        }
+        // __________________________________________________________________________________________
+
+        function onclique(feature, layer) {
+            layer.on({
+                click: function(e) {
+                    map.fitBounds(e.target.getBounds());
+                }
+            });
+        }; 
+        // __________________________________________________________________________________________
+        function style_RS_0_0() {
+            return {
+                opacity: 0.3,
+                color: 'rgba(247,247,247,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 0.7,
+                fillColor: 'rgba(150,150,150,1.0)',
+                interactive: false,
+            }
+        }
+        // __________________________________________________________________________________________
+
+        function style_SP_0_0() {
+            return {
+                opacity: 1,
+                color: 'rgba(228,26,28,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        // __________________________________________________________________________________________
+        function minhaAcao()
+        {
+            var santa = L.geoJson(santa)
+            let dicionarioSC = {
+                'santa catarina': santa,
+            }
+            dicionario  = Object.assign(dicionario, dicionarioSC)
+            map.removeControl(rotulo);
+            rotulo = L.control.layers({},dicionario).addTo(map)
+        }
+        // __________________________________________________________________________________________
+        function cor(Populaçao){
+                    if(Populaçao > 100)
+                        {
+                            return  'red'
+                        }
+                    else if(Populaçao < 10 )
+                        {
+                            return  'blue'
+                        }
+                    else
+                        {
+                            return 'green'
+                        }
+                    }
+        function estilos(camada){
+            return {
+                fillColor: cor(camada.properties.DensDemog),
+                weight: 2,
+                opacity: 1,
+                color: 'white',
+                dashArray: 3,
+                fillOpacity:1 
+            }
+        }
+        // __________________________________________________________________________________________
+        var map = L.map('map');
+        var jacarei = L.geoJson(jacarei);
+        var UF = L.geoJson(UF, {onEachFeature: onclique, style:estilos});
+        var sp = L.geoJson(sp)
+        var sp2 = L.geoJson(json_SP_0,{onEachFeature: onclique, style: style_SP_0_0})
+        var RS = L.geoJson(json_RS_0,{onEachFeature: onclique,style: style_RS_0_0})
+        var OSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
+        var googleSatelite = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}')
+        map.fitBounds(UF.getBounds())
+        // ______________________________________________________________________________________________
+        function popiup(feature, layer) {
+                {
+                   return layer.bindPopup(feature.properties.ADMIN);
+                }}
+        var mapamundi = L.geoJson(mapamundi, {onEachFeature: popiup2})
+        mapamundi.addTo(map)
+        //__________________________________________________________________________________________________
+        function mapamundial(){
+            return legendaMAPA
+        }
+        // ______________________________________________________________________________________________
+        var Dicionario = {
+            'mapamundi': mapamundi,
+            'jacarei' : jacarei,
+            'UF' : UF,
+            'sp' : sp,
+            'sp2' : sp2,
+            'RS' : RS,
+        }
+        let rotulo = L.control.layers({OSM,googleSatelite},Dicionario).addTo(map)
+        // ______________________________________________________________________________________________
+        var legendaUF = L.control({position: 'bottomright'})
+        var legendaMAPA = L.control({position: 'bottomright'})
+ 
+        //__________________________________________________________________________________________________
+        function removerLegenda()
+        {    legend.remove()}
+         //__________________________________________________________________________________________________
+        
+         
+        //___________________________________________________________________________________________________
+               
+        map.on('overlayadd', function (eventLayer) {
+            // Switch to the Population legend...
+            if (eventLayer.name === 'UF') {
+                map.removeControl(legendaMAPA)
+                legendaUF.onAdd = function (map) {
+                var div = L.DomUtil.create('div', 'legend');
+                div.innerHTML = '<img src="img/Sem título.png">'
+                return div };
+                legendaUF.addTo(map)}
+            if (eventLayer.name === 'mapamundi') {
+                map.removeControl(legendaUF)
+                legendaMAPA.onAdd = function (map) {
+                var div = L.DomUtil.create('div', 'legend');
+                div.innerHTML = '<img src="img/paiseskm2.png">'
+                return div };
+                legendaMAPA.addTo(map)}
+            })
+        map.on('overlayremove', function (eventLayer) {
+            if (eventLayer.name === 'UF') {
+                map.removeControl(legendaUF)}
+            
+            if (eventLayer.name === 'UF') {
+                map.removeControl(legendaMAPA)}
+            })
+            
+        
+ </script>
+</body>
+</html>
